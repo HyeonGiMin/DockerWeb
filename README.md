@@ -89,3 +89,36 @@ npm run dev      # /api, /hubs(ws) -> :5080 프록시
 | Volumes | `GET /api/volumes`, `POST /`, `DELETE /{name}`, `POST /prune` |
 | Networks | `GET /api/networks`, `GET /{id}`, `POST /`, `DELETE /{id}` |
 | SignalR | `/hubs/monitor` → `StreamStats(containerId)`, `StreamLogs(containerId, tail)` |
+
+## 서버에 배포 (자기 호스트 관리)
+
+이 컨테이너는 **자기가 올라간 Docker 호스트만** 관리한다. 호스트의 로컬 Docker 소켓
+(`/var/run/docker.sock`)을 마운트해서 그 호스트의 Docker만 제어하며, 원격 노출
+(2375/2376, TLS, 외부 TCP)은 일절 하지 않는다. ("자기 서버만 보도록 해줘")
+
+단일 컨테이너가 API와 React SPA를 **같은 포트(8080)에서 same-origin**으로 제공한다.
+클라이언트는 상대경로(`/api`, `/hubs/monitor`)를 쓰므로 프로덕션에서 별도 설정이 필요 없다.
+
+### 배포 (호스트에서 실행)
+
+```bash
+docker compose up -d --build
+```
+
+빌드가 끝나면 브라우저에서 `http://<host>:8080` 접속.
+(예: 이 서버에서는 `http://10.10.140.28:8080`)
+
+- 호스트의 로컬 Docker 소켓에 바인딩한다 — **2375/2376 없음, TLS 없음, 원격 노출 없음**.
+  오직 **자기 호스트의 Docker만** 관리한다.
+- 8080 포트가 사용 중이면 `docker-compose.yml`의 포트 매핑을 `8088:8080` 등으로 바꾸고
+  `http://<host>:8088`로 접속한다.
+
+### 보안 주의
+
+- `docker.sock`을 마운트하면 컨테이너가 **호스트에 대한 root 동등 제어권**을 갖는다.
+  외부에 노출하기 전에 **신뢰된 네트워크 / 리버스 프록시 + 인증** 뒤에 둘 것.
+- **이 MVP에는 인증이 포함되어 있지 않다.**
+- 런타임 이미지(`mcr.microsoft.com/dotnet/aspnet:10.0`)는 기본적으로 **root**로 실행되므로
+  소켓 접근에 문제가 없다. 따라서 의도적으로 non-root `USER`를 추가하지 않았다.
+- Linux에서 소켓이 `docker` 그룹 소유라면 기본 root 컨테이너 사용자는 여전히 접근 가능하다.
+  이후 non-root로 실행한다면 `docker-compose.yml`에 `group_add: [<docker-gid>]`를 추가한다.

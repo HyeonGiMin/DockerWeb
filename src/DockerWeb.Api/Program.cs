@@ -66,7 +66,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(SpaCorsPolicy);
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapControllers();
 app.MapHub<MonitorHub>("/hubs/monitor");
+
+// SPA fallback must be last so /api and /hubs routes win.
+app.MapFallbackToFile("index.html");
 
 app.Run();
