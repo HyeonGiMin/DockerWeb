@@ -1,0 +1,25 @@
+# Standalone deployment — use a PREBUILT image (no source needed on the host).
+#
+#   1) copy dockerweb-image.tar.gz to the server
+#   2) docker load -i dockerweb-image.tar.gz
+#   3) docker compose -f docker-compose.yml up -d
+#   4) browse http://<host>:8080   (default login: admin / change-me-please)
+#
+# Manages ONLY this host's Docker via the mounted socket — no remote TCP/TLS exposure.
+# ⚠️ Change Auth__Password and Auth__JwtSecret before any real use.
+services:
+  dockerweb:
+    image: dockerweb:latest
+    container_name: dockerweb
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - Docker__Mode=Local
+      - Docker__LocalEndpoint=unix:///var/run/docker.sock
+      - Auth__Username=admin
+      - Auth__Password=change-me-please
+      - Auth__JwtSecret=change-this-to-a-long-random-secret-string-at-least-32-chars
+    volumes:
+      # Read-write: the app controls THIS host's Docker.
+      - /var/run/docker.sock:/var/run/docker.sock

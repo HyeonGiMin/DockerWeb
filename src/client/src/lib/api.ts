@@ -18,11 +18,61 @@ import type {
   TagImageRequest,
   VolumeDto,
 } from '../types'
+import { clearToken, getToken } from './auth'
 
 export const http = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
 })
+
+const LOGIN_PATH = '/login'
+
+/** Attach the bearer token (when present) to every outgoing request. */
+http.interceptors.request.use((config) => {
+  const token = getToken()
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+/** On 401, drop the stale token and bounce to the login page. */
+http.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    const status = error.response?.status
+    const isLoginCall = error.config?.url?.includes('/auth/login')
+    if (status === 401 && !isLoginCall) {
+      clearToken()
+      if (window.location.pathname !== LOGIN_PATH) {
+        window.location.assign(LOGIN_PATH)
+      }
+    }
+    return Promise.reject(error)
+  },
+)
+
+interface LoginResponse {
+  token: string
+  expiresAt: string
+  username: string
+}
+
+export const authApi = {
+  /**
+   * Exchange credentials for a JWT. Uses a bare axios call so no stale bearer is
+   * attached and a 401 here does not trigger the redirect interceptor.
+   */
+  login: (username: string, password: string) =>
+    axios
+      .post<LoginResponse>(
+        '/api/auth/login',
+        { username, password },
+        { headers: { 'Content-Type': 'application/json' } },
+      )
+      .then((r) => r.data),
+  me: () => http.get<{ username: string }>('/auth/me').then((r) => r.data),
+}
 
 /** Extract a user-friendly message from an RFC7807 ProblemDetails error. */
 export function getApiErrorMessage(error: unknown): string {

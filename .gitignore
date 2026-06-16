@@ -39,3 +39,8 @@ Thumbs.db
 
 # ---- Logs ----
 *.log
+
+# ---- Docker image artifacts (distribute out-of-band, not via git) ----
+*.tar
+*.tar.gz
+*.tgz

@@ -5,13 +5,14 @@ import {
   LogLevel,
 } from '@microsoft/signalr'
 import type { StatsDto } from '../types'
+import { getToken } from './auth'
 
 const HUB_URL = '/hubs/monitor'
 
 /** Create a hub connection to the monitor hub (not yet started). */
 export function createMonitorConnection(): HubConnection {
   return new HubConnectionBuilder()
-    .withUrl(HUB_URL)
+    .withUrl(HUB_URL, { accessTokenFactory: () => getToken() ?? '' })
     .withAutomaticReconnect()
     .configureLogging(LogLevel.Warning)
     .build()

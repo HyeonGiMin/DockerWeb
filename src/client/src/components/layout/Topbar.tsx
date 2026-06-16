@@ -1,7 +1,8 @@
 import { useLocation } from 'react-router-dom'
-import { RefreshCw } from 'lucide-react'
+import { LogOut, RefreshCw } from 'lucide-react'
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
 import { IconButton } from '../ui'
+import { useAuth } from '../../auth/useAuth'
 import styles from './layout.module.css'
 
 const TITLES: { prefix: string; title: string }[] = [
@@ -21,6 +22,7 @@ export function Topbar() {
   const { pathname } = useLocation()
   const queryClient = useQueryClient()
   const fetching = useIsFetching()
+  const { logout } = useAuth()
 
   return (
     <header className={styles.topbar}>
@@ -32,6 +34,9 @@ export function Topbar() {
           disabled={fetching > 0}
         >
           <RefreshCw size={17} aria-hidden />
+        </IconButton>
+        <IconButton label="Sign out" onClick={logout}>
+          <LogOut size={17} aria-hidden />
         </IconButton>
       </div>
     </header>

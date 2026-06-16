@@ -75,8 +75,34 @@ npm run dev      # /api, /hubs(ws) -> :5080 프록시
 원격 호스트는 Settings 화면에서 Mode를 `Remote`로 바꾸고
 `tcp://<host>:2376` 엔드포인트와 (필요 시) 클라이언트 인증서(.pfx)를 지정한다.
 
-> ⚠️ MVP에는 인증이 없다. Docker 제어는 호스트에 대한 강력한 권한이므로,
-> 신뢰된 네트워크 외부에 노출하기 전 인증/권한 계층을 반드시 추가할 것.
+> ⚠️ Docker 제어는 호스트에 대한 강력한 권한이므로, 신뢰된 네트워크 외부에
+> 노출하기 전 아래 **로그인 / 인증** 설정을 반드시 변경할 것.
+
+## 로그인 / 인증
+
+단일 관리자 계정 기반 JWT 로그인이 포함되어 있다. 모든 `/api/*` 엔드포인트와
+SignalR 허브(`/hubs/monitor`)는 인증을 요구하며, `/api/auth/login`과 SPA 셸만
+익명 접근이 가능하다.
+
+- **기본 계정**: `admin` / `admin` (`appsettings.json`의 `Auth` 섹션 기본값)
+- 실제 사용 전 **반드시 환경변수로 변경**할 것:
+  - `Auth__Username`, `Auth__Password` — 관리자 자격증명
+  - `Auth__JwtSecret` — JWT 서명 키. **32자 이상의 길고 무작위한 문자열**로 설정한다.
+    설정하지 않거나 32자 미만이면 프로세스 시작 시 임의 키가 생성되며(경고 로그 출력),
+    이 경우 **재시작하면 발급된 토큰이 모두 무효화**된다.
+  - `Auth__TokenHours` — 토큰 만료 시간(기본 12시간)
+- 토큰은 브라우저 `localStorage`(`dockerweb_token`)에 저장되고, 만료되거나 401을
+  받으면 자동으로 로그인 화면(`/login`)으로 이동한다.
+
+`docker-compose.yml`은 데모용 기본값(`change-me-please` 등)을 제공하므로,
+배포 전 해당 값들을 실제 비밀로 교체한다.
+
+```yaml
+environment:
+  - Auth__Username=admin
+  - Auth__Password=<강력한-비밀번호>
+  - Auth__JwtSecret=<32자-이상-무작위-문자열>
+```
 
 ## REST API 요약
 

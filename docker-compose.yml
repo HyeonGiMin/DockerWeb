@@ -9,6 +9,10 @@ services:
     environment:
       - Docker__Mode=Local
       - Docker__LocalEndpoint=unix:///var/run/docker.sock
+      # Single-admin login. CHANGE THESE before exposing the service.
+      - Auth__Username=admin
+      - Auth__Password=change-me-please
+      - Auth__JwtSecret=change-this-to-a-long-random-secret-string-at-least-32-chars
     volumes:
       # Read-write: the app must control the host's Docker.
       - /var/run/docker.sock:/var/run/docker.sock

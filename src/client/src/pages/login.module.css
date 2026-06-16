@@ -1,0 +1,97 @@
+.screen {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--space-6);
+  /* Layered atmosphere: dark slate base with a soft accent glow top-left. */
+  background:
+    radial-gradient(
+      900px 500px at 15% -10%,
+      rgba(37, 99, 235, 0.35),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 400px at 110% 120%,
+      rgba(29, 78, 216, 0.25),
+      transparent 55%
+    ),
+    var(--sidebar-bg);
+}
+
+.card {
+  width: 100%;
+  max-width: 384px;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.brandMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brandName {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.brandTag {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.heading {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
+}
+
+.subheading {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-5);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--status-danger);
+  background: var(--status-danger-soft);
+  border: 1px solid var(--status-danger);
+  border-radius: var(--radius-sm);
+}
+
+.submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
